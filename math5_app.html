@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מתמטיקה כיתה ה' — תרגול והסברים</title>
+<style>
+  :root{
+    --ink:#1f2a44; --bg:#f2f6fb; --card:#ffffff;
+    --blue:#2563eb; --blue-soft:#dbeafe;
+    --green:#16a34a; --green-soft:#dcfce7;
+    --red:#dc2626; --red-soft:#fee2e2;
+    --orange:#ea580c; --orange-soft:#ffedd5;
+    --purple:#7c3aed; --purple-soft:#ede9fe;
+    --teal:#0d9488; --teal-soft:#ccfbf1;
+    --radius:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"Segoe UI", "Arial Hebrew", Arial, sans-serif;
+    background:var(--bg); color:var(--ink);
+    min-height:100vh; padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+    color:#fff; padding:20px 16px; text-align:center;
+    border-bottom-left-radius:24px; border-bottom-right-radius:24px;
+  }
+  header h1{font-size:1.5rem;}
+  header p{opacity:.9; font-size:.9rem; margin-top:4px;}
+  .score-bar{
+    display:flex; justify-content:center; gap:14px; margin-top:10px; font-size:.9rem;
+  }
+  .score-pill{background:rgba(255,255,255,.18); border-radius:99px; padding:4px 14px;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  .menu{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:12px; margin-top:14px;
+  }
+  .topic-btn{
+    border:none; border-radius:var(--radius); padding:16px 10px;
+    font-size:1rem; font-weight:600; cursor:pointer; color:var(--ink);
+    background:var(--card); box-shadow:0 2px 6px rgba(31,42,68,.08);
+    transition:transform .12s ease, box-shadow .12s ease;
+    border-top:5px solid var(--blue);
+    font-family:inherit;
+  }
+  .topic-btn:hover{transform:translateY(-3px); box-shadow:0 6px 14px rgba(31,42,68,.14);}
+  .topic-btn .emoji{font-size:1.7rem; display:block; margin-bottom:6px;}
+  .topic-btn.active{background:var(--blue); color:#fff;}
+  .card{
+    background:var(--card); border-radius:var(--radius);
+    box-shadow:0 2px 8px rgba(31,42,68,.08);
+    padding:20px; margin-top:16px;
+  }
+  .q-title{font-size:1.05rem; font-weight:700; margin-bottom:14px;}
+  .ltr{direction:ltr; unicode-bidi:isolate; display:inline-block;}
+  .big-exercise{
+    direction:ltr; unicode-bidi:isolate;
+    font-size:1.6rem; font-weight:700; text-align:center;
+    background:var(--blue-soft); border-radius:12px; padding:12px; margin-bottom:14px;
+    letter-spacing:1px;
+  }
+  .answer-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+  input.answer{
+    direction:ltr; font-size:1.3rem; padding:8px 12px; width:140px; text-align:center;
+    border:2px solid #cbd5e1; border-radius:10px; font-family:inherit;
+  }
+  input.answer:focus{outline:none; border-color:var(--blue);}
+  input.small-ans{width:64px;}
+  .btn{
+    border:none; border-radius:10px; padding:10px 22px; font-size:1rem; font-weight:700;
+    cursor:pointer; font-family:inherit; transition:filter .1s;
+  }
+  .btn:hover{filter:brightness(1.07);}
+  .btn-check{background:var(--blue); color:#fff;}
+  .btn-next{background:var(--green); color:#fff;}
+  .btn-show{background:var(--orange); color:#fff;}
+  .btn-row{display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;}
+  .feedback{
+    margin-top:14px; padding:12px 14px; border-radius:12px; font-weight:700; text-align:center;
+    display:none; font-size:1.05rem;
+  }
+  .feedback.good{display:block; background:var(--green-soft); color:var(--green);}
+  .feedback.bad{display:block; background:var(--red-soft); color:var(--red);}
+  .solution{
+    margin-top:16px; background:#f8fafc; border:2px dashed #cbd5e1;
+    border-radius:12px; padding:16px; display:none;
+  }
+  .solution.show{display:block;}
+  .solution h3{color:var(--purple); margin-bottom:10px; font-size:1.05rem;}
+  .step{
+    display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; line-height:1.55;
+  }
+  .step .n{
+    flex-shrink:0; width:26px; height:26px; border-radius:50%;
+    background:var(--purple); color:#fff; font-weight:700; font-size:.85rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step b.ltr{direction:ltr; unicode-bidi:isolate;}
+  /* תרגיל מאונך */
+  .vgrid{
+    direction:ltr; unicode-bidi:isolate;
+    display:inline-grid; gap:2px; margin:8px auto; font-size:1.5rem; font-weight:700;
+  }
+  .vwrap{text-align:center;}
+  .vcell{
+    width:46px; height:46px; display:flex; align-items:center; justify-content:center;
+    border-radius:8px;
+  }
+  .vcell.digit{background:#fff;}
+  .vcell.carry{
+    height:30px; font-size:.85rem; color:var(--red); font-weight:700;
+  }
+  .vcell.carry input{
+    width:28px; height:26px; font-size:.85rem; text-align:center; color:var(--red);
+    border:1.5px dashed var(--red); border-radius:6px; background:var(--red-soft);
+    font-family:inherit; font-weight:700;
+  }
+  .vcell.res input{
+    width:42px; height:42px; font-size:1.3rem; text-align:center;
+    border:2px solid var(--blue); border-radius:8px; font-family:inherit; font-weight:700;
+  }
+  .vcell input:focus{outline:none; box-shadow:0 0 0 3px var(--blue-soft);}
+  .vline{grid-column:1/-1; border-bottom:3px solid var(--ink); margin:4px 0;}
+  .vop{color:var(--blue);}
+  .vcell.correct input{border-color:var(--green); background:var(--green-soft);}
+  .vcell.wrong input{border-color:var(--red); background:var(--red-soft);}
+  /* צירים */
+  svg{max-width:100%; height:auto; display:block; margin:0 auto;}
+  .axes-svg{touch-action:none; cursor:crosshair; background:#fff; border-radius:12px;}
+  .choice-row{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px;}
+  .choice{
+    border:2px solid #cbd5e1; background:#fff; border-radius:10px; padding:10px 18px;
+    font-size:1.15rem; font-weight:700; cursor:pointer; font-family:inherit;
+    direction:ltr; unicode-bidi:isolate;
+  }
+  .choice:hover{border-color:var(--blue);}
+  .choice.sel{background:var(--blue); color:#fff; border-color:var(--blue);}
+  .frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 4px; direction:ltr;}
+  .frac .top{padding:0 6px; border-bottom:2px solid currentColor; line-height:1.2;}
+  .frac .bot{padding:0 6px; line-height:1.2;}
+  .hint{font-size:.85rem; color:#64748b; text-align:center; margin-top:6px;}
+  .home-note{text-align:center; color:#64748b; margin-top:24px; font-size:.95rem;}
+  @media (max-width:480px){
+    .vcell{width:38px; height:40px;}
+    .vcell.res input{width:34px; height:36px; font-size:1.1rem;}
+    .big-exercise{font-size:1.3rem;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧮 מתמטיקה כיתה ה'</h1>
+  <p>תרגול בכל הנושאים — עם פתרון מלא שלב-אחר-שלב</p>
+  <div class="score-bar">
+    <div class="score-pill">✅ נכונות: <span id="scoreGood">0</span></div>
+    <div class="score-pill">📝 ניסיונות: <span id="scoreTotal">0</span></div>
+  </div>
+</header>
+<main>
+  <div class="menu" id="menu"></div>
+  <div id="stage"></div>
+  <p class="home-note" id="homeNote">בחרו נושא למעלה כדי להתחיל לתרגל 🎯</p>
+</main>
+
+<script>
+"use strict";
+/* ---------- מצב כללי ---------- */
+let good=0, total=0, currentTopic=null, currentQ=null;
+const stage=document.getElementById('stage');
+const homeNote=document.getElementById('homeNote');
+function addScore(ok){ total++; if(ok) good++;
+  document.getElementById('scoreGood').textContent=good;
+  document.getElementById('scoreTotal').textContent=total;
+}
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function gcd(a,b){return b? gcd(b,a%b): a;}
+
+/* ---------- נושאים ---------- */
+const TOPICS=[
+ {id:'vmul', name:'כפל מאונך', emoji:'✖️', color:'var(--blue)'},
+ {id:'vsub', name:'חיסור מאונך', emoji:'➖', color:'var(--red)'},
+ {id:'vadd', name:'חיבור מאונך', emoji:'➕', color:'var(--green)'},
+ {id:'longdiv', name:'חילוק ארוך', emoji:'➗', color:'var(--purple)'},
+ {id:'axes', name:'מערכת צירים', emoji:'📍', color:'var(--teal)'},
+ {id:'fracline', name:'שברים על ציר', emoji:'📏', color:'var(--orange)'},
+ {id:'fracops', name:'חיבור וחיסור שברים', emoji:'🍕', color:'var(--orange)'},
+ {id:'fraccomp', name:'השוואת שברים', emoji:'⚖️', color:'var(--orange)'},
+ {id:'decimals', name:'מספרים עשרוניים', emoji:'🔢', color:'var(--purple)'},
+ {id:'area', name:'שטח והיקף', emoji:'📐', color:'var(--teal)'},
+ {id:'word', name:'בעיות מילוליות', emoji:'📖', color:'var(--blue)'},
+ {id:'order', name:'סדר פעולות', emoji:'🧠', color:'var(--green)'},
+];
+const menu=document.getElementById('menu');
+TOPICS.forEach(t=>{
+  const b=document.createElement('button');
+  b.className='topic-btn'; b.style.borderTopColor=t.color;
+  b.innerHTML=`<span class="emoji">${t.emoji}</span>${t.name}`;
+  b.onclick=()=>{ document.querySelectorAll('.topic-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); homeNote.style.display='none'; startTopic(t.id); };
+  menu.appendChild(b);
+});
+function startTopic(id){ currentTopic=id; GEN[id](); }
+function nextBtnRow(extraShow=true){
+  return `<div class="btn-row">
+    <button class="btn btn-check" id="btnCheck">בדיקה ✔</button>
+    ${extraShow?'<button class="btn btn-show" id="btnShow">הראו לי את הפתרון 💡</button>':''}
+    <button class="btn btn-next" id="btnNext">תרגיל חדש 🔄</button>
+  </div>
+  <div class="feedback" id="fb"></div>
+  <div class="solution" id="sol"></div>`;
+}
+function wire(checkFn, solHTML){
+  document.getElementById('btnNext').onclick=()=>GEN[currentTopic]();
+  const show=document.getElementById('btnShow');
+  if(show) show.onclick=()=>{
+    const s=document.getElementById('sol'); s.innerHTML=solHTML; s.classList.add('show');
+  };
+  document.getElementById('btnCheck').onclick=()=>{
+    const ok=checkFn();
+    const fb=document.getElementById('fb');
+    fb.className='feedback '+(ok?'good':'bad');
+    fb.textContent= ok? '🎉 כל הכבוד! תשובה נכונה!' : '🤔 לא בדיוק... נסו שוב או הציצו בפתרון';
+    addScore(ok);
+    if(!ok){ const s=document.getElementById('sol'); s.innerHTML=solHTML; }
+  };
+}
+function steps(arr){ return arr.map((s,i)=>`<div class="step"><div class="n">${i+1}</div><div>${s}</div></div>`).join(''); }
+
+/* ====================================================
+   כפל מאונך עם שמירת עשרות למעלה
+==================================================== */
+function vmul(){
+  const a=ri(13,98), b=ri(3,9);
+  const prod=a*b;
+  const aD=String(a).split('').map(Number); // [tens, ones]
+  const ones=aD[1]*b, carry=Math.floor(ones/10), onesDigit=ones%10;
+  const tens=aD[0]*b+carry;
+  const pDigits=String(prod).split('');
+  // grid: cols = max(len(prod), 2)+1 (for sign)
+  const cols=Math.max(pDigits.length,2)+1;
+  function row(cells){ return cells.map(c=>c).join(''); }
+  let html=`<div class="card">
+    <div class="q-title">פתרו את תרגיל הכפל במאונך. כתבו את ספרת השמירה (העשרת) בריבוע האדום למעלה!</div>
+    <div class="vwrap"><div class="vgrid" style="grid-template-columns:repeat(${cols},auto);">`;
+  // carry row: carry box above tens digit of a
+  const pad=cols-2;
+  for(let i=0;i<pad;i++) html+=`<div class="vcell carry"></div>`;
+  html+=`<div class="vcell carry" id="carryCell"><input maxlength="1" inputmode="numeric" id="inCarry" placeholder="🔺"></div><div class="vcell carry"></div>`;
+  // number a
+  for(let i=0;i<cols-2;i++) html+=`<div class="vcell"></div>`;
+  html+=`<div class="vcell digit">${aD[0]}</div><div class="vcell digit">${aD[1]}</div>`;
+  // × b
+  for(let i=0;i<cols-2;i++) html+= i===0? `<div class="vcell vop">×</div>` : `<div class="vcell"></div>`;
+  html+=`<div class="vcell"></div><div class="vcell digit">${b}</div>`;
+  html+=`<div class="vline"></div>`;
+  // result inputs
+  const resPad=cols-pDigits.length;
+  for(let i=0;i<resPad;i++) html+=`<div class="vcell"></div>`;
+  pDigits.forEach((d,i)=> html+=`<div class="vcell res"><input maxlength="1" inputmode="numeric" class="resIn" data-d="${d}"></div>`);
+  html+=`</div></div>${nextBtnRow()}</div>`;
+  stage.innerHTML=html;
+
+  const sol=`<h3>💡 פתרון מלא: <b class="ltr">${a} × ${b}</b></h3>`+steps([
+    `מתחילים מספרת <b>היחידות</b>: <b class="ltr">${aD[1]} × ${b} = ${ones}</b>.`,
+    carry>0
+      ? `מכיוון ש-<b class="ltr">${ones}</b> גדול מ-9: כותבים <b>${onesDigit}</b> בתוצאה בטור היחידות, ו<b style="color:var(--red)">שומרים ${carry} למעלה</b> מעל ספרת העשרות.`
+      : `התוצאה <b>${ones}</b> קטנה מ-10, לכן כותבים אותה בטור היחידות ואין שמירה.`,
+    `עוברים לספרת <b>העשרות</b>: <b class="ltr">${aD[0]} × ${b} = ${aD[0]*b}</b>${carry>0?`, ומוסיפים את השמירה: <b class="ltr">${aD[0]*b} + ${carry} = ${tens}</b>`:''}.`,
+    `כותבים <b>${tens}</b> משמאל לספרת היחידות.`,
+    `התוצאה הסופית: <b class="ltr">${a} × ${b} = ${prod}</b> 🎉`
+  ]);
+  wire(()=>{
+    let ok=true;
+    document.querySelectorAll('.resIn').forEach(inp=>{
+      const right= inp.value.trim()===inp.dataset.d;
+      inp.parentElement.classList.toggle('correct',right);
+      inp.parentElement.classList.toggle('wrong',!right);
+      if(!right) ok=false;
+    });
+    const cIn=document.getElementById('inCarry');
+    if(carry>0){
+      const cok=cIn.value.trim()===String(carry);
+      cIn.style.background=cok?'var(--green-soft)':'var(--red-soft)';
+      if(!cok) ok=false;
+    }
+    return ok;
+  }, sol);
+}
+
+/* ====================================================
+   חיסור מאונך עם פריטה
+==================================================== */
+function vsub(){
+  let a=ri(120,989), b=ri(25,a-15);
+  const diff=a-b;
+  const A=String(a).padStart(3,'0').split('').map(Number);
+  const B=String(b).padStart(3,'0').split('').map(Number);
+  const D=String(diff).split('');
+  const cols=4;
+  let html=`<div class="card">
+    <div class="q-title">פתרו את תרגיל החיסור במאונך. שימו לב — ייתכן שתצטרכו <b>לפרוט</b> (לקחת עשרת מהשכן)!</div>
+    <div class="vwrap"><div class="vgrid" style="grid-template-columns:repeat(${cols},auto);">`;
+  html+=`<div class="vcell"></div>`+A.map(d=>`<div class="vcell digit">${d===0&&a<100?'':d}</div>`).join('');
+  html+=`<div class="vcell vop">−</div>`+B.map((d,i)=>`<div class="vcell digit">${(d===0&&i===0&&b<100)?'':d}</div>`).join('');
+  html+=`<div class="vline"></div>`;
+  const padR=cols-1-D.length;
+  html+=`<div class="vcell"></div>`;
+  for(let i=0;i<padR;i++) html+=`<div class="vcell"></div>`;
+  D.forEach(d=> html+=`<div class="vcell res"><input maxlength="1" inputmode="numeric" class="resIn" data-d="${d}"></div>`);
+  html+=`</div></div>${nextBtnRow()}</div>`;
+  stage.innerHTML=html;
+
+  // בניית הסבר עם פריטות
+  const st=[];
+  let borrow=0;
+  const names=['היחידות','העשרות','המאות'];
+  for(let i=2;i>=0;i--){
+    let top=A[i]-borrow;
+    const before=borrow;
+    if(top<B[i]){
+      st.push(`בטור ${names[2-i]}: <b class="ltr">${top} − ${B[i]}</b> אי-אפשר (העליון קטן!). <b style="color:var(--red)">פורטים</b>: לוקחים 1 מהטור משמאל, ועכשיו יש לנו <b class="ltr">${top+10}</b>. מחשבים: <b class="ltr">${top+10} − ${B[i]} = ${top+10-B[i]}</b>.`);
+      borrow=1;
+    } else {
+      st.push(`בטור ${names[2-i]}: ${before?`אחרי הפריטה נשאר <b>${top}</b>. `:''}<b class="ltr">${top} − ${B[i]} = ${top-B[i]}</b>. כותבים <b>${top-B[i]}</b>.`);
+      borrow=0;
+    }
+  }
+  st.push(`התוצאה: <b class="ltr">${a} − ${b} = ${diff}</b> 🎉 <br>בדיקה בחיבור: <b class="ltr">${diff} + ${b} = ${a}</b> ✔`);
+  const sol=`<h3>💡 פתרון מלא: <b class="ltr">${a} − ${b}</b></h3>`+steps(st);
+  wire(()=>{
+    let ok=true;
+    document.querySelectorAll('.resIn').forEach(inp=>{
+      const right=inp.value.trim()===inp.dataset.d;
+      inp.parentElement.classList.toggle('correct',right);
+      inp.parentElement.classList.toggle('wrong',!right);
+      if(!right) ok=false;
+    });
+    return ok;
+  }, sol);
+}
+
+/* ====================================================
+   חיבור מאונך עם שמירה
+==================================================== */
+function vadd(){
+  const a=ri(125,879), b=ri(125,879);
+  const sum=a+b;
+  const A=String(a).split('').map(Number), B=String(b).split('').map(Number);
+  const S=String(sum).split('');
+  const cols=Math.max(S.length,3)+1;
+  let html=`<div class="card">
+    <div class="q-title">פתרו את תרגיל החיבור במאונך. אם סכום בטור גדול מ-9 — <b>שומרים</b> לטור הבא!</div>
+    <div class="vwrap"><div class="vgrid" style="grid-template-columns:repeat(${cols},auto);">`;
+  const padA=cols-3;
+  for(let i=0;i<padA;i++) html+=`<div class="vcell"></div>`;
+  html+=A.map(d=>`<div class="vcell digit">${d}</div>`).join('');
+  html+=`<div class="vcell vop">+</div>`;
+  for(let i=0;i<padA-1;i++) html+=`<div class="vcell"></div>`;
+  html+=B.map(d=>`<div class="vcell digit">${d}</div>`).join('');
+  html+=`<div class="vline"></div>`;
+  const padS=cols-S.length;
+  for(let i=0;i<padS;i++) html+=`<div class="vcell"></div>`;
+  S.forEach(d=> html+=`<div class="vcell res"><input maxlength="1" inputmode="numeric" class="resIn" data-d="${d}"></div>`);
+  html+=`</div></div>${nextBtnRow()}</div>`;
+  stage.innerHTML=html;
+
+  const st=[]; let carry=0; const names=['היחידות','העשרות','המאות'];
+  for(let i=2;i>=0;i--){
+    const s=A[i]+B[i]+carry;
+    const before=carry;
+    if(s>9){
+      st.push(`טור ${names[2-i]}: <b class="ltr">${A[i]} + ${B[i]}${before?` + ${before}`:''} = ${s}</b>. כותבים <b>${s%10}</b> ו<b style="color:var(--red)">שומרים 1</b> לטור הבא.`);
+      carry=1;
+    } else {
+      st.push(`טור ${names[2-i]}: <b class="ltr">${A[i]} + ${B[i]}${before?` + ${before}`:''} = ${s}</b>. כותבים <b>${s}</b>.`);
+      carry=0;
+    }
+  }
+  if(carry) st.push(`נשארה שמירה של 1 — כותבים אותה משמאל (טור האלפים).`);
+  st.push(`התוצאה: <b class="ltr">${a} + ${b} = ${sum}</b> 🎉`);
+  wire(()=>{
+    let ok=true;
+    document.querySelectorAll('.resIn').forEach(inp=>{
+      const right=inp.value.trim()===inp.dataset.d;
+      inp.parentElement.classList.toggle('correct',right);
+      inp.parentElement.classList.toggle('wrong',!right);
+      if(!right) ok=false;
+    });
+    return ok;
+  }, `<h3>💡 פתרון מלא: <b class="ltr">${a} + ${b}</b></h3>`+steps(st));
+}
+
+/* ====================================================
+   חילוק ארוך
+==================================================== */
+function longdiv(){
+  const d=ri(3,9), q=ri(12,98);
+  const n=d*q + ri(0,d-1);
+  const quot=Math.floor(n/d), rem=n%d;
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">פתרו: כמה זה <b class="ltr">${n} ÷ ${d}</b>? (אם יש שארית — רשמו אותה)</div>
+    <div class="big-exercise">${n} ÷ ${d} = ?</div>
+    <div class="answer-row">
+      <label>מנה: <input class="answer small-ans" id="aq" inputmode="numeric"></label>
+      <label>שארית: <input class="answer small-ans" id="ar" inputmode="numeric" placeholder="0"></label>
+    </div>
+    ${nextBtnRow()}</div>`;
+  // explanation digits
+  const nD=String(n).split('').map(Number);
+  const st=[];
+  let cur=0, qStr='';
+  nD.forEach((dig,i)=>{
+    cur=cur*10+dig;
+    const qd=Math.floor(cur/d);
+    if(qStr!=='' || qd>0 || i===nD.length-1){
+      st.push(`מורידים את הספרה <b>${dig}</b> ← יש לנו <b>${cur}</b>. כמה פעמים <b>${d}</b> נכנס ב-<b>${cur}</b>? <b class="ltr">${qd} × ${d} = ${qd*d}</b>, נשאר <b class="ltr">${cur} − ${qd*d} = ${cur-qd*d}</b>.`);
+      qStr+=qd;
+      cur=cur-qd*d;
+    } else {
+      st.push(`הספרה הראשונה <b>${dig}</b> קטנה מ-<b>${d}</b> — מצרפים אליה את הספרה הבאה.`);
+    }
+  });
+  st.push(`המנה היא <b>${quot}</b>${rem?` והשארית <b>${rem}</b>`:' ללא שארית'}. <br>בדיקה: <b class="ltr">${quot} × ${d}${rem?` + ${rem}`:''} = ${n}</b> ✔`);
+  wire(()=>{
+    return document.getElementById('aq').value.trim()===String(quot)
+      && (document.getElementById('ar').value.trim()||'0')===String(rem);
+  }, `<h3>💡 פתרון מלא: חילוק ארוך <b class="ltr">${n} ÷ ${d}</b></h3>`+steps(st));
+}
+
+/* ====================================================
+   מערכת צירים — לחיצה על נקודה
+==================================================== */
+function axes(){
+  const px=ri(1,9), py=ri(1,9);
+  const size=340, pad=30, cell=(size-2*pad)/10;
+  let grid='';
+  for(let i=0;i<=10;i++){
+    const p=pad+i*cell;
+    grid+=`<line x1="${p}" y1="${pad}" x2="${p}" y2="${size-pad}" stroke="#e2e8f0"/>`;
+    grid+=`<line x1="${pad}" y1="${p}" x2="${size-pad}" y2="${p}" stroke="#e2e8f0"/>`;
+    if(i>0){
+      grid+=`<text x="${pad+i*cell}" y="${size-pad+16}" font-size="11" text-anchor="middle" fill="#475569">${i}</text>`;
+      grid+=`<text x="${pad-12}" y="${size-pad-i*cell+4}" font-size="11" text-anchor="middle" fill="#475569">${i}</text>`;
+    }
+  }
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">לחצו על הנקודה <b class="ltr">(${px}, ${py})</b> במערכת הצירים 📍</div>
+    <svg id="axsvg" class="axes-svg" viewBox="0 0 ${size} ${size}" width="${size}">
+      ${grid}
+      <line x1="${pad}" y1="${size-pad}" x2="${size-pad+8}" y2="${size-pad}" stroke="#1f2a44" stroke-width="2.5"/>
+      <line x1="${pad}" y1="${size-pad}" x2="${pad}" y2="${pad-8}" stroke="#1f2a44" stroke-width="2.5"/>
+      <text x="${size-pad+12}" y="${size-pad+5}" font-size="14" font-weight="bold">x</text>
+      <text x="${pad-5}" y="${pad-12}" font-size="14" font-weight="bold">y</text>
+      <text x="${pad-12}" y="${size-pad+16}" font-size="11" fill="#475569">0</text>
+      <circle id="marker" r="8" fill="var(--blue)" stroke="#fff" stroke-width="2" style="display:none"/>
+    </svg>
+    <p class="hint">רמז: קודם הולכים <b>ימינה</b> על ציר ה-x, ואז <b>למעלה</b> על ציר ה-y</p>
+    ${nextBtnRow()}</div>`;
+  let chosen=null;
+  const svg=document.getElementById('axsvg'), marker=document.getElementById('marker');
+  svg.addEventListener('click',e=>{
+    const r=svg.getBoundingClientRect();
+    const sx=(e.clientX-r.left)*(size/r.width), sy=(e.clientY-r.top)*(size/r.height);
+    const gx=Math.round((sx-pad)/cell), gy=Math.round((size-pad-sy)/cell);
+    if(gx<0||gx>10||gy<0||gy>10) return;
+    chosen={x:gx,y:gy};
+    marker.setAttribute('cx',pad+gx*cell);
+    marker.setAttribute('cy',size-pad-gy*cell);
+    marker.style.display='block';
+  });
+  const sol=`<h3>💡 איך מאתרים את הנקודה <b class="ltr">(${px}, ${py})</b>?</h3>`+steps([
+    `בזוג סדור <b class="ltr">(x, y)</b> — המספר <b>הראשון</b> הוא תמיד ערך ה-<b>x</b> (כמה הולכים ימינה), והמספר <b>השני</b> הוא ערך ה-<b>y</b> (כמה עולים למעלה).`,
+    `מתחילים בראשית הצירים (0,0), והולכים <b>${px} צעדים ימינה</b> על ציר ה-x.`,
+    `משם עולים <b>${py} צעדים למעלה</b> במקביל לציר ה-y.`,
+    `הגענו לנקודה <b class="ltr">(${px}, ${py})</b>! 📍 שימו לב: הנקודה <b class="ltr">(${py}, ${px})</b> היא נקודה <u>אחרת</u> — הסדר חשוב!`
+  ]);
+  wire(()=> chosen && chosen.x===px && chosen.y===py, sol);
+}
+
+/* ====================================================
+   שברים על ציר המספרים
+==================================================== */
+function fracline(){
+  const den=[2,3,4,5,6,8][ri(0,5)];
+  const num=ri(1,den-1);
+  const size=600, pad=40, h=110, len=size-2*pad;
+  let ticks='';
+  for(let i=0;i<=den;i++){
+    const x=pad+i*(len/den);
+    ticks+=`<line x1="${x}" y1="55" x2="${x}" y2="75" stroke="#1f2a44" stroke-width="2"/>`;
+    if(i===0||i===den) ticks+=`<text x="${x}" y="95" font-size="15" font-weight="bold" text-anchor="middle">${i===0?0:1}</text>`;
+  }
+  // clickable points
+  let dots='';
+  for(let i=1;i<den;i++){
+    const x=pad+i*(len/den);
+    dots+=`<circle class="dot" data-i="${i}" cx="${x}" cy="65" r="11" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2" style="cursor:pointer"/>`;
+  }
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">לחצו על המקום של השבר
+      <span class="frac"><span class="top">${num}</span><span class="bot">${den}</span></span>
+      על ציר המספרים</div>
+    <svg viewBox="0 0 ${size} ${h}" id="flsvg">
+      <line x1="${pad-15}" y1="65" x2="${size-pad+15}" y2="65" stroke="#1f2a44" stroke-width="2.5"/>
+      ${ticks}${dots}
+    </svg>
+    ${nextBtnRow()}</div>`;
+  let chosen=null;
+  document.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('click',()=>{
+      document.querySelectorAll('.dot').forEach(x=>{x.setAttribute('fill','#cbd5e1');});
+      d.setAttribute('fill','var(--blue)');
+      chosen=Number(d.dataset.i);
+    });
+  });
+  const sol=`<h3>💡 איך ממקמים שבר על הציר?</h3>`+steps([
+    `המכנה הוא <b>${den}</b> — לכן מחלקים את הקטע מ-0 עד 1 ל-<b>${den} חלקים שווים</b>.`,
+    `כל קו קטן מסמן עוד <span class="frac"><span class="top">1</span><span class="bot">${den}</span></span>.`,
+    `המונה הוא <b>${num}</b> — לכן סופרים <b>${num} קפיצות</b> מ-0.`,
+    `הנקודה ה-${num} מסמנת את <span class="frac"><span class="top">${num}</span><span class="bot">${den}</span></span> ✔ ${num*2===den?`(זה בדיוק חצי הדרך — כי <span class="frac"><span class="top">${num}</span><span class="bot">${den}</span></span> = <span class="frac"><span class="top">1</span><span class="bot">2</span></span>!)`:''}`
+  ]);
+  wire(()=> chosen===num, sol);
+}
+
+/* ====================================================
+   חיבור/חיסור שברים
+==================================================== */
+function fracHTML(n,d){return `<span class="frac"><span class="top">${n}</span><span class="bot">${d}</span></span>`;}
+function fracops(){
+  const mode=ri(0,1); // 0 same denom, 1 different (one multiple of other)
+  let d1,d2,n1,n2,op;
+  if(mode===0){
+    d1=d2=[4,5,6,8,10][ri(0,4)];
+    op= ri(0,1)? '+':'−';
+    if(op==='+'){ n1=ri(1,d1-2); n2=ri(1,d1-n1-0); if(n1+n2>=d1) n2=d1-n1-0; n2=Math.max(1,Math.min(n2,d1-n1)); }
+    else { n1=ri(2,d1-1); n2=ri(1,n1-1); }
+  } else {
+    d1=[2,3,4,5][ri(0,3)]; d2=d1*ri(2,3);
+    op= ri(0,1)? '+':'−';
+    n1=ri(1,d1-1); n2=ri(1,d2-1);
+    if(op==='−' && n1*(d2/d1) <= n2){ op='+'; }
+    if(op==='+' && n1*(d2/d1)+n2 >= d2){ n2=Math.max(1, d2 - n1*(d2/d1) - 1); if(n2<1){n2=1; op='−'; if(n1*(d2/d1)<=n2){n1=d1-1;} } }
+  }
+  const cd=d2, cn1= n1*(cd/d1), cn2=n2;
+  const resN= op==='+'? cn1+cn2 : cn1-cn2;
+  const g=gcd(resN,cd)||1;
+  const simN=resN/g, simD=cd/g;
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">חשבו (אם אפשר — צמצמו את התוצאה):</div>
+    <div class="big-exercise" style="font-size:1.4rem;">
+      ${fracHTML(n1,d1)} ${op} ${fracHTML(n2,d2)} = ?
+    </div>
+    <div class="answer-row">
+      <label>מונה: <input class="answer small-ans" id="an" inputmode="numeric"></label>
+      <label>מכנה: <input class="answer small-ans" id="ad" inputmode="numeric"></label>
+    </div>
+    ${nextBtnRow()}</div>`;
+  const st=[];
+  if(d1!==d2){
+    st.push(`למכנים <b>${d1}</b> ו-<b>${d2}</b> צריך <b>מכנה משותף</b>. המכנה <b>${d2}</b> מתחלק ב-<b>${d1}</b>, אז נרחיב את השבר הראשון: כופלים מונה ומכנה ב-<b>${d2/d1}</b>.`);
+    st.push(`${fracHTML(n1,d1)} = ${fracHTML(cn1,cd)} (הרחבנו פי ${d2/d1}).`);
+  } else {
+    st.push(`למזלנו המכנים <b>שווים</b> (${d1}), אז אפשר ${op==='+'?'לחבר':'לחסר'} ישר את המונים!`);
+  }
+  st.push(`${op==='+'?'מחברים':'מחסרים'} מונים בלבד, המכנה נשאר: <b class="ltr">${cn1} ${op==='+'?'+':'−'} ${cn2} = ${resN}</b>, כלומר ${fracHTML(resN,cd)}.`);
+  if(g>1) st.push(`אפשר <b>לצמצם</b>! מחלקים מונה ומכנה ב-<b>${g}</b>: ${fracHTML(resN,cd)} = ${fracHTML(simN,simD)} ✔`);
+  else st.push(`את השבר ${fracHTML(resN,cd)} אי-אפשר לצמצם — זו התשובה הסופית ✔`);
+  wire(()=>{
+    const un=Number(document.getElementById('an').value), ud=Number(document.getElementById('ad').value);
+    if(!ud) return false;
+    return un*simD===simN*ud && un>=0; // equivalent fraction accepted
+  }, `<h3>💡 פתרון מלא</h3>`+steps(st));
+}
+
+/* ====================================================
+   השוואת שברים
+==================================================== */
+function fraccomp(){
+  let n1=ri(1,7), d1=ri(n1+1,9), n2=ri(1,7), d2=ri(n2+1,9);
+  while(n1*d2===n2*d1){ n2=ri(1,7); d2=ri(n2+1,9); }
+  const left=n1*d2, right=n2*d1;
+  const ans= left>right? '>' : '<';
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">איזה סימן מתאים? בחרו:</div>
+    <div class="big-exercise" style="font-size:1.4rem;">
+      ${fracHTML(n1,d1)} <span style="color:var(--purple)">❓</span> ${fracHTML(n2,d2)}
+    </div>
+    <div class="choice-row">
+      <button class="choice" data-v=">">&gt;</button>
+      <button class="choice" data-v="=">=</button>
+      <button class="choice" data-v="<">&lt;</button>
+    </div>
+    <p class="hint">זכרו: הפה הפתוח של הסימן תמיד "אוכל" את הגדול 🐊</p>
+    ${nextBtnRow()}</div>`;
+  let sel=null;
+  document.querySelectorAll('.choice').forEach(c=>c.onclick=()=>{
+    document.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));
+    c.classList.add('sel'); sel=c.dataset.v;
+  });
+  const sol=`<h3>💡 איך משווים שברים עם מכנים שונים?</h3>`+steps([
+    `מביאים ל<b>מכנה משותף</b>. הדרך הפשוטה: כופלים את המכנים זה בזה — <b class="ltr">${d1} × ${d2} = ${d1*d2}</b>.`,
+    `מרחיבים את השבר הראשון פי ${d2}: ${fracHTML(n1,d1)} = ${fracHTML(left,d1*d2)}.`,
+    `מרחיבים את השבר השני פי ${d1}: ${fracHTML(n2,d2)} = ${fracHTML(right,d1*d2)}.`,
+    `עכשיו המכנים שווים — משווים מונים: <b>${left}</b> ${ans==='>'?'גדול מ':'קטן מ'}-<b>${right}</b>.`,
+    `לכן: ${fracHTML(n1,d1)} <b style="font-size:1.3rem">${ans==='>'?'&gt;':'&lt;'}</b> ${fracHTML(n2,d2)} ✔`
+  ]);
+  wire(()=> sel===ans, sol);
+}
+
+/* ====================================================
+   מספרים עשרוניים
+==================================================== */
+function decimals(){
+  const type=ri(0,2);
+  if(type===0){ // חיבור עשרוני
+    const a=(ri(10,99)/10), b=(ri(10,99)/10);
+    const sum=Math.round((a+b)*10)/10;
+    stage.innerHTML=`<div class="card">
+      <div class="q-title">חשבו את תרגיל החיבור העשרוני:</div>
+      <div class="big-exercise">${a} + ${b} = ?</div>
+      <div class="answer-row"><input class="answer" id="a1" inputmode="decimal" placeholder="?"></div>
+      ${nextBtnRow()}</div>`;
+    const aw=Math.floor(a), af=Math.round((a-aw)*10);
+    const bw=Math.floor(b), bf=Math.round((b-bw)*10);
+    const fsum=af+bf;
+    const sol=`<h3>💡 פתרון: <b class="ltr">${a} + ${b}</b></h3>`+steps([
+      `בחיבור עשרוני מסדרים את המספרים כך שה<b>נקודה העשרונית</b> נמצאת בדיוק אחת מתחת לשנייה.`,
+      `מחברים את חלקי <b>העשיריות</b>: <b class="ltr">${af} + ${bf} = ${fsum}</b>${fsum>9?` — זה יותר מ-9 עשיריות, אז <b style="color:var(--red)">שומרים 1 שלם</b> וכותבים ${fsum%10} עשיריות`:''}.`,
+      `מחברים את <b>השלמים</b>: <b class="ltr">${aw} + ${bw}${fsum>9?' + 1':''} = ${aw+bw+(fsum>9?1:0)}</b>.`,
+      `התוצאה: <b class="ltr">${a} + ${b} = ${sum}</b> ✔`
+    ]);
+    wire(()=> Math.abs(Number(document.getElementById('a1').value)-sum)<0.001, sol);
+  } else if(type===1){ // השוואה
+    const a=(ri(10,99)/10).toFixed(1), b=(Number(a)+ (ri(0,1)? 0.01*ri(1,9) : -0.01*ri(1,9))).toFixed(2);
+    const ans= Number(a)>Number(b)? '>' : (Number(a)<Number(b)? '<' : '=');
+    stage.innerHTML=`<div class="card">
+      <div class="q-title">איזה מספר גדול יותר? בחרו סימן:</div>
+      <div class="big-exercise">${a} ❓ ${b}</div>
+      <div class="choice-row">
+        <button class="choice" data-v=">">&gt;</button>
+        <button class="choice" data-v="=">=</button>
+        <button class="choice" data-v="<">&lt;</button>
+      </div>${nextBtnRow()}</div>`;
+    let sel=null;
+    document.querySelectorAll('.choice').forEach(c=>c.onclick=()=>{
+      document.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel'); sel=c.dataset.v;
+    });
+    const sol=`<h3>💡 איך משווים מספרים עשרוניים?</h3>`+steps([
+      `טריק מעולה: משלימים אפסים כדי שלשני המספרים יהיה אותו מספר ספרות אחרי הנקודה: <b class="ltr">${a} = ${Number(a).toFixed(2)}</b>.`,
+      `עכשיו משווים כמו מספרים רגילים: <b class="ltr">${(Number(a)*100)}</b> מאיות לעומת <b class="ltr">${Math.round(Number(b)*100)}</b> מאיות.`,
+      `לכן <b class="ltr">${a} ${ans} ${b}</b> ✔ זכרו: מספר "ארוך" יותר אחרי הנקודה הוא <u>לא</u> בהכרח גדול יותר!`
+    ]);
+    wire(()=> sel===ans, sol);
+  } else { // המרת שבר לעשרוני
+    const pairs=[[1,2,0.5],[1,4,0.25],[3,4,0.75],[1,5,0.2],[2,5,0.4],[3,5,0.6],[4,5,0.8],[1,10,0.1],[3,10,0.3],[7,10,0.7]];
+    const [n,d,v]=pairs[ri(0,pairs.length-1)];
+    stage.innerHTML=`<div class="card">
+      <div class="q-title">כתבו את השבר ${fracHTML(n,d)} כמספר עשרוני:</div>
+      <div class="answer-row"><input class="answer" id="a1" inputmode="decimal" placeholder="0.??"></div>
+      ${nextBtnRow()}</div>`;
+    const exp= d===10? `המכנה כבר 10, אז המונה פשוט יושב במקום העשיריות: <b class="ltr">${n}/10 = ${v}</b>.`
+      : `מרחיבים את השבר כך שהמכנה יהיה 10 או 100: כופלים מונה ומכנה ב-<b>${d===2?5:(d===4?25:2)}</b> ← <b class="ltr">${n*(d===2?5:(d===4?25:2))}/${d*(d===2?5:(d===4?25:2))}</b>.`;
+    const sol=`<h3>💡 הפיכת שבר למספר עשרוני</h3>`+steps([
+      `מספר עשרוני הוא בעצם שבר שהמכנה שלו הוא 10, 100, 1000...`,
+      exp,
+      `לכן ${fracHTML(n,d)} = <b class="ltr">${v}</b> ✔`
+    ]);
+    wire(()=> Math.abs(Number(document.getElementById('a1').value)-v)<0.0001, sol);
+  }
+}
+
+/* ====================================================
+   שטח והיקף
+==================================================== */
+function area(){
+  const w=ri(3,12), h=ri(2,9);
+  const askArea=ri(0,1)===0;
+  const ans= askArea? w*h : 2*(w+h);
+  const scale=22, sw=w*scale, sh=h*scale;
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">לפניכם מלבן. חשבו את ה<b>${askArea?'שטח':'היקף'}</b> שלו:</div>
+    <svg viewBox="0 0 ${sw+80} ${sh+60}" width="${Math.min(sw+80,420)}">
+      <rect x="40" y="20" width="${sw}" height="${sh}" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="3" rx="4"/>
+      <text x="${40+sw/2}" y="${sh+48}" text-anchor="middle" font-size="15" font-weight="bold">${w} ס"מ</text>
+      <text x="22" y="${20+sh/2}" text-anchor="middle" font-size="15" font-weight="bold">${h} ס"מ</text>
+    </svg>
+    <div class="answer-row">
+      <input class="answer" id="a1" inputmode="numeric" placeholder="?">
+      <span style="align-self:center; font-weight:700;">${askArea?'סמ"ר':'ס"מ'}</span>
+    </div>
+    ${nextBtnRow()}</div>`;
+  const sol= askArea
+    ? `<h3>💡 שטח מלבן</h3>`+steps([
+        `שטח מלבן = <b>אורך × רוחב</b>. השטח מודד כמה ריבועים של 1×1 ס"מ נכנסים בפנים.`,
+        `במלבן שלנו: <b class="ltr">${w} × ${h} = ${w*h}</b>.`,
+        `התשובה: <b>${w*h} סמ"ר</b> (סנטימטרים רבועים) ✔`
+      ])
+    : `<h3>💡 היקף מלבן</h3>`+steps([
+        `היקף = אורך כל הצלעות יחד, כמו ללכת מסביב למלבן.`,
+        `במלבן יש 2 צלעות של <b>${w}</b> ו-2 צלעות של <b>${h}</b>: <b class="ltr">2 × (${w} + ${h})</b>.`,
+        `מחשבים: <b class="ltr">2 × ${w+h} = ${ans}</b>. התשובה: <b>${ans} ס"מ</b> ✔`
+      ]);
+  wire(()=> Number(document.getElementById('a1').value)===ans, sol);
+}
+
+/* ====================================================
+   בעיות מילוליות
+==================================================== */
+function word(){
+  const probs=[
+    ()=>{ const p=ri(4,9), c=ri(12,30); return {
+      t:`בחנות יש ${c} קופסאות, ובכל קופסה ${p} עפרונות. כמה עפרונות יש בסך הכול?`,
+      a:p*c,
+      s:[`זו בעיית <b>כפל</b>: אותה כמות (${p}) חוזרת ${c} פעמים.`,
+         `כותבים תרגיל: <b class="ltr">${c} × ${p} = ${c*p}</b>.`,
+         `תשובה: יש <b>${c*p} עפרונות</b> ✔`]};},
+    ()=>{ const total=ri(150,400), spent=ri(40,total-30); return {
+      t:`לרוני היו ${total} שקלים. היא קנתה מתנה ב-${spent} שקלים. כמה כסף נשאר לה?`,
+      a:total-spent,
+      s:[`המילה "נשאר" רומזת על <b>חיסור</b>.`,
+         `כותבים תרגיל: <b class="ltr">${total} − ${spent} = ${total-spent}</b>.`,
+         `תשובה: נשארו לרוני <b>${total-spent} שקלים</b> ✔`]};},
+    ()=>{ const kids=ri(4,8), candies=kids*ri(5,12); return {
+      t:`${candies} סוכריות חולקו שווה בשווה בין ${kids} ילדים. כמה סוכריות קיבל כל ילד?`,
+      a:candies/kids,
+      s:[`"חולקו שווה בשווה" = בעיית <b>חילוק</b>.`,
+         `כותבים תרגיל: <b class="ltr">${candies} ÷ ${kids} = ${candies/kids}</b>.`,
+         `תשובה: כל ילד קיבל <b>${candies/kids} סוכריות</b> ✔`]};},
+    ()=>{ const a=ri(120,350), b=ri(120,350); return {
+      t:`בספרייה יש ${a} ספרי קריאה ו-${b} ספרי עיון. כמה ספרים יש בספרייה בסך הכול?`,
+      a:a+b,
+      s:[`"בסך הכול" = בעיית <b>חיבור</b>.`,
+         `כותבים תרגיל: <b class="ltr">${a} + ${b} = ${a+b}</b>.`,
+         `תשובה: בספרייה <b>${a+b} ספרים</b> ✔`]};},
+    ()=>{ const price=ri(6,15), n=ri(3,7), pay=price*n+ri(5,40); return {
+      t:`דני קנה ${n} מחברות במחיר ${price} שקלים כל אחת, ושילם ב-${pay} שקלים. כמה עודף קיבל?`,
+      a:pay-price*n,
+      s:[`זו בעיה <b>דו-שלבית</b>! קודם מחשבים כמה עלו כל המחברות: <b class="ltr">${n} × ${price} = ${n*price}</b> שקלים.`,
+         `עכשיו מחשבים את העודף בחיסור: <b class="ltr">${pay} − ${n*price} = ${pay-n*price}</b>.`,
+         `תשובה: דני קיבל עודף של <b>${pay-n*price} שקלים</b> ✔`]};},
+  ];
+  const p=probs[ri(0,probs.length-1)]();
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">📖 ${p.t}</div>
+    <div class="answer-row"><input class="answer" id="a1" inputmode="numeric" placeholder="?"></div>
+    ${nextBtnRow()}</div>`;
+  wire(()=> Number(document.getElementById('a1').value)===p.a,
+    `<h3>💡 פתרון מלא</h3>`+steps(p.s));
+}
+
+/* ====================================================
+   סדר פעולות
+==================================================== */
+function order(){
+  const a=ri(2,9), b=ri(2,9), c=ri(2,9);
+  const type=ri(0,2);
+  let ex, ans, st;
+  if(type===0){
+    ex=`${a} + ${b} × ${c}`; ans=a+b*c;
+    st=[`כלל הזהב: <b>כפל וחילוק לפני חיבור וחיסור</b>!`,
+        `קודם הכפל: <b class="ltr">${b} × ${c} = ${b*c}</b>.`,
+        `עכשיו החיבור: <b class="ltr">${a} + ${b*c} = ${ans}</b> ✔ (מי שחישב משמאל לימין קיבל ${(a+b)*c} — וזו טעות!)`];
+  } else if(type===1){
+    ex=`(${a} + ${b}) × ${c}`; ans=(a+b)*c;
+    st=[`יש <b>סוגריים</b> — הם תמיד ראשונים!`,
+        `קודם: <b class="ltr">${a} + ${b} = ${a+b}</b>.`,
+        `ואז הכפל: <b class="ltr">${a+b} × ${c} = ${ans}</b> ✔`];
+  } else {
+    const d=b*c;
+    ex=`${a} × ${b} + ${d} ÷ ${c}`; ans=a*b + d/c;
+    st=[`כפל וחילוק קודמים — מבצעים אותם משמאל לימין, ורק אז מחברים.`,
+        `כפל: <b class="ltr">${a} × ${b} = ${a*b}</b>. חילוק: <b class="ltr">${d} ÷ ${c} = ${d/c}</b>.`,
+        `מחברים: <b class="ltr">${a*b} + ${d/c} = ${ans}</b> ✔`];
+  }
+  stage.innerHTML=`<div class="card">
+    <div class="q-title">חשבו לפי סדר פעולות החשבון:</div>
+    <div class="big-exercise">${ex} = ?</div>
+    <div class="answer-row"><input class="answer" id="a1" inputmode="numeric" placeholder="?"></div>
+    ${nextBtnRow()}</div>`;
+  wire(()=> Number(document.getElementById('a1').value)===ans,
+    `<h3>💡 פתרון מלא: <b class="ltr">${ex}</b></h3>`+steps(st));
+}
+
+const GEN={vmul,vsub,vadd,longdiv,axes,fracline,fracops,fraccomp,decimals,area,word,order};
+</script>
+</body>
+</html>
